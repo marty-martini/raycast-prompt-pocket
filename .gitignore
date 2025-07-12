@@ -1,0 +1,24 @@
+# macOS固有のファイル
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# サムネイル
+._*
+
+# 外部ディスクのメタデータファイル
+.Spotlight-V100
+.Trashes
+
+# macOSのシステムファイル
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# IntelliJ project files
+.idea
+*.iml
+out
+gen
