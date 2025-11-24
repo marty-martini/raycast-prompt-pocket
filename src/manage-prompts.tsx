@@ -13,9 +13,8 @@ import {
   useNavigation,
 } from "@raycast/api";
 import { useEffect, useState } from "react";
-import { v4 as uuidv4 } from "uuid";
-import { deletePrompt, getPrompts, savePrompt } from "./storage";
-import { Prompt, PromptFormValues } from "./types";
+import { createPrompt, deletePrompt, listPrompts, updatePrompt } from "./lib/promptStorage";
+import { Prompt, PromptFormValues } from "./types/prompt";
 
 /**
  * メインコマンド: Manage Prompts
@@ -33,7 +32,7 @@ export default function Command() {
   async function loadPrompts() {
     setIsLoading(true);
     try {
-      const data = await getPrompts();
+      const data = await listPrompts();
       setPrompts(data);
     } catch (error) {
       showToast({
@@ -186,7 +185,6 @@ function PromptForm({ prompt, onSave }: { prompt?: Prompt; onSave: () => void })
   async function handleSubmit(values: PromptFormValues) {
     setIsLoading(true);
     try {
-      const now = new Date().toISOString();
       const tags = values.tags
         ? values.tags
             .split(",")
@@ -194,27 +192,37 @@ function PromptForm({ prompt, onSave }: { prompt?: Prompt; onSave: () => void })
             .filter((t) => t.length > 0)
         : undefined;
 
-      const newPrompt: Prompt = {
-        id: prompt?.id || uuidv4(),
-        title: values.title,
-        body: values.body,
-        tags,
-        createdAt: prompt?.createdAt || now,
-        updatedAt: now,
-      };
+      if (prompt) {
+        // 既存プロンプトを更新
+        await updatePrompt(prompt.id, {
+          title: values.title,
+          body: values.body,
+          tags,
+        });
+        showToast({
+          style: Toast.Style.Success,
+          title: "Prompt Updated",
+        });
+      } else {
+        // 新規プロンプトを作成
+        await createPrompt({
+          title: values.title,
+          body: values.body,
+          tags,
+        });
+        showToast({
+          style: Toast.Style.Success,
+          title: "Prompt Created",
+        });
+      }
 
-      await savePrompt(newPrompt);
-      showToast({
-        style: Toast.Style.Success,
-        title: prompt ? "Prompt Updated" : "Prompt Created",
-      });
       onSave();
       pop();
     } catch (error) {
       showToast({
         style: Toast.Style.Failure,
         title: "Failed to Save Prompt",
-        message: String(error),
+        message: String(error) || "Unknown error occurred",
       });
     } finally {
       setIsLoading(false);
