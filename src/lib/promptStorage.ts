@@ -1,6 +1,7 @@
 import { LocalStorage } from "@raycast/api";
 import { v4 as uuidv4 } from "uuid";
 import { CreatePromptInput, Prompt, sanitizePrompt, UpdatePromptInput } from "../types/prompt";
+import { ErrorCode, PromptManagerError, toPromptManagerError } from "../types/errors";
 
 /**
  * LocalStorage のキー
@@ -20,7 +21,7 @@ async function loadPromptsFromStorage(): Promise<Prompt[]> {
     const parsed: unknown = JSON.parse(stored);
     if (!Array.isArray(parsed)) {
       console.error("Stored data is not an array");
-      return [];
+      throw new PromptManagerError("Invalid data format in storage", ErrorCode.STORAGE_READ_FAILED);
     }
 
     // 各要素をサニタイズして有効なプロンプトのみを返す
@@ -36,8 +37,10 @@ async function loadPromptsFromStorage(): Promise<Prompt[]> {
 
     return prompts;
   } catch (error) {
-    console.error("Failed to load prompts from storage:", error);
-    return [];
+    if (error instanceof SyntaxError) {
+      throw new PromptManagerError("Corrupted storage data", ErrorCode.STORAGE_READ_FAILED, error);
+    }
+    throw toPromptManagerError(error, ErrorCode.STORAGE_READ_FAILED);
   }
 }
 
@@ -49,7 +52,7 @@ async function savePromptsToStorage(prompts: Prompt[]): Promise<void> {
     await LocalStorage.setItem(STORAGE_KEY, JSON.stringify(prompts));
   } catch (error) {
     console.error("Failed to save prompts to storage:", error);
-    throw new Error("Failed to save prompts");
+    throw toPromptManagerError(error, ErrorCode.STORAGE_WRITE_FAILED);
   }
 }
 
@@ -79,10 +82,10 @@ export async function getPrompt(id: string): Promise<Prompt | undefined> {
 export async function createPrompt(input: CreatePromptInput): Promise<Prompt> {
   // バリデーション
   if (!input.title.trim()) {
-    throw new Error("Title is required");
+    throw new PromptManagerError("Title is required", ErrorCode.VALIDATION_FAILED);
   }
   if (!input.body.trim()) {
-    throw new Error("Body is required");
+    throw new PromptManagerError("Body is required", ErrorCode.VALIDATION_FAILED);
   }
 
   const now = new Date().toISOString();
@@ -110,7 +113,7 @@ export async function updatePrompt(id: string, patch: UpdatePromptInput): Promis
   const index = prompts.findIndex((p) => p.id === id);
 
   if (index === -1) {
-    throw new Error(`Prompt with id "${id}" not found`);
+    throw new PromptManagerError(`Prompt with id "${id}" not found`, ErrorCode.PROMPT_NOT_FOUND);
   }
 
   const existingPrompt = prompts[index];
@@ -129,10 +132,10 @@ export async function updatePrompt(id: string, patch: UpdatePromptInput): Promis
 
   // バリデーション
   if (!updatedPrompt.title) {
-    throw new Error("Title cannot be empty");
+    throw new PromptManagerError("Title cannot be empty", ErrorCode.VALIDATION_FAILED);
   }
   if (!updatedPrompt.body) {
-    throw new Error("Body cannot be empty");
+    throw new PromptManagerError("Body cannot be empty", ErrorCode.VALIDATION_FAILED);
   }
 
   prompts[index] = updatedPrompt;
@@ -149,7 +152,7 @@ export async function deletePrompt(id: string): Promise<void> {
   const filtered = prompts.filter((p) => p.id !== id);
 
   if (filtered.length === prompts.length) {
-    throw new Error(`Prompt with id "${id}" not found`);
+    throw new PromptManagerError(`Prompt with id "${id}" not found`, ErrorCode.PROMPT_NOT_FOUND);
   }
 
   await savePromptsToStorage(filtered);
