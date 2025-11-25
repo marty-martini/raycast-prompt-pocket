@@ -101,11 +101,17 @@ export function PromptForm({ prompt, onSave }: PromptFormProps) {
       <Form.TextArea
         id="body"
         title="Body"
-        placeholder="Enter your prompt text here...&#10;&#10;You can use multiple lines."
+        placeholder="Enter your prompt text here...&#10;&#10;You can use placeholders like {clipboard} and {cursor}"
         defaultValue={prompt?.body || ""}
         error={bodyError}
         onChange={() => setBodyError(undefined)}
         enableMarkdown
+        info="Use {clipboard} to insert current clipboard content, {cursor} to set cursor position after paste"
+      />
+
+      <Form.Description
+        title="Available Placeholders"
+        text="• {clipboard} - Replaced with current clipboard content&#10;• {cursor} - Cursor will move to this position after pasting"
       />
 
       <Form.TextField
