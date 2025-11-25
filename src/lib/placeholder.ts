@@ -1,4 +1,5 @@
 import { Clipboard } from "@raycast/api";
+import { ErrorCode, toPromptManagerError } from "../types/errors";
 
 /**
  * プレースホルダ処理のオプション
@@ -18,6 +19,7 @@ export interface FillPromptOptions {
  * @param template - プレースホルダを含むテンプレート文字列
  * @param options - 処理オプション
  * @returns 処理後のテキスト
+ * @throws PromptManagerError クリップボードアクセスに失敗した場合
  * 
  * @example
  * ```typescript
@@ -30,21 +32,25 @@ export async function fillPromptBody(
   template: string,
   options?: FillPromptOptions
 ): Promise<string> {
-  let result = template;
+  try {
+    let result = template;
 
-  // {clipboard} プレースホルダの処理
-  if (result.includes("{clipboard}")) {
-    const clipboardText = await getClipboardText(options?.clipboardText);
-    result = result.replace(/{clipboard}/g, clipboardText);
+    // {clipboard} プレースホルダの処理
+    if (result.includes("{clipboard}")) {
+      const clipboardText = await getClipboardText(options?.clipboardText);
+      result = result.replace(/{clipboard}/g, clipboardText);
+    }
+
+    // {cursor} プレースホルダの処理
+    // {cursor} は削除する（ペーストでは分割処理するため、コピーでは不要）
+    if (result.includes("{cursor}")) {
+      result = result.replace(/{cursor}/g, "");
+    }
+
+    return result;
+  } catch (error) {
+    throw toPromptManagerError(error, ErrorCode.CLIPBOARD_FAILED);
   }
-
-  // {cursor} プレースホルダの処理
-  // {cursor} は削除する（ペーストでは分割処理するため、コピーでは不要）
-  if (result.includes("{cursor}")) {
-    result = result.replace(/{cursor}/g, "");
-  }
-
-  return result;
 }
 
 /**
@@ -54,40 +60,45 @@ export async function fillPromptBody(
  * @param template - プレースホルダを含むテンプレート文字列
  * @param options - 処理オプション
  * @returns { text: 処理済みテキスト, cursorOffset: {cursor}より後の文字数（カーソル移動用） }
+ * @throws PromptManagerError クリップボードアクセスに失敗した場合
  */
 export async function fillPromptForPaste(
   template: string,
   options?: FillPromptOptions
 ): Promise<{ text: string; cursorOffset: number | null }> {
-  let result = template;
+  try {
+    let result = template;
 
-  // {clipboard} プレースホルダの処理
-  if (result.includes("{clipboard}")) {
-    const clipboardText = await getClipboardText(options?.clipboardText);
-    result = result.replace(/{clipboard}/g, clipboardText);
-  }
+    // {clipboard} プレースホルダの処理
+    if (result.includes("{clipboard}")) {
+      const clipboardText = await getClipboardText(options?.clipboardText);
+      result = result.replace(/{clipboard}/g, clipboardText);
+    }
 
-  // {cursor} プレースホルダの処理
-  if (result.includes("{cursor}")) {
-    const cursorIndex = result.indexOf("{cursor}");
-    
-    // {cursor} を削除
-    const textWithoutCursor = result.replace("{cursor}", "");
-    
-    // {cursor} より後の文字数を計算（カーソルを左に移動する数）
-    const afterCursorLength = textWithoutCursor.length - cursorIndex;
+    // {cursor} プレースホルダの処理
+    if (result.includes("{cursor}")) {
+      const cursorIndex = result.indexOf("{cursor}");
 
+      // {cursor} を削除
+      const textWithoutCursor = result.replace("{cursor}", "");
+
+      // {cursor} より後の文字数を計算（カーソルを左に移動する数）
+      const afterCursorLength = textWithoutCursor.length - cursorIndex;
+
+      return {
+        text: textWithoutCursor,
+        cursorOffset: afterCursorLength,
+      };
+    }
+
+    // {cursor} がない場合
     return {
-      text: textWithoutCursor,
-      cursorOffset: afterCursorLength,
+      text: result,
+      cursorOffset: null,
     };
+  } catch (error) {
+    throw toPromptManagerError(error, ErrorCode.CLIPBOARD_FAILED);
   }
-
-  // {cursor} がない場合
-  return {
-    text: result,
-    cursorOffset: null,
-  };
 }
 
 /**
@@ -96,10 +107,11 @@ export async function fillPromptForPaste(
  * クリップボードが空またはテキストでない場合の挙動:
  * - クリップボードが空の場合: 空文字列を返す
  * - テキスト以外（画像など）の場合: 空文字列を返す
- * - エラーが発生した場合: 空文字列を返す（エラーを握りつぶす）
+ * - エラーが発生した場合: エラーをスロー（呼び出し側でハンドリング）
  * 
- * この挙動により、プレースホルダがあっても処理が失敗せず、
- * ユーザーは結果を確認して必要に応じて手動で修正できる。
+ * @param providedText オプションで提供されるテキスト（テスト用）
+ * @returns クリップボードのテキスト内容
+ * @throws Error クリップボードアクセスに失敗した場合
  */
 async function getClipboardText(providedText?: string): Promise<string> {
   // 明示的にテキストが提供されている場合はそれを使用
@@ -110,7 +122,7 @@ async function getClipboardText(providedText?: string): Promise<string> {
   try {
     // Clipboard API からテキストを読み取る
     const text = await Clipboard.readText();
-    
+
     // null または undefined の場合は空文字列
     if (text == null) {
       return "";
@@ -118,10 +130,10 @@ async function getClipboardText(providedText?: string): Promise<string> {
 
     return text;
   } catch (error) {
-    // エラーが発生した場合は空文字列を返す
+    // エラーが発生した場合はスロー
     // （例: クリップボードへのアクセス権限がない等）
     console.error("Failed to read clipboard:", error);
-    return "";
+    throw error;
   }
 }
 
