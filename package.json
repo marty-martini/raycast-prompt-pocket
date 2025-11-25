@@ -31,16 +31,22 @@
     "@types/node": "^20.14.9",
     "@types/react": "^18.3.3",
     "@types/uuid": "^10.0.0",
+    "@vitest/ui": "^4.0.14",
     "eslint": "^8.57.0",
+    "happy-dom": "^20.0.10",
     "prettier": "^3.3.2",
-    "typescript": "^5.5.3"
+    "typescript": "^5.5.3",
+    "vitest": "^4.0.14"
   },
   "scripts": {
     "build": "ray build -e dist",
     "dev": "ray develop",
     "fix-lint": "ray lint --fix",
     "lint": "ray lint",
-    "publish": "npx @raycast/api@latest publish"
+    "publish": "npx @raycast/api@latest publish",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage"
   }
 }
-

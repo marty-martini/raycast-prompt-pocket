@@ -43,6 +43,36 @@ npm install
 
 # Run in development mode
 npm run dev
+
+# Run tests
+npm test
+
+# Run tests with UI
+npm run test:ui
+
+# Run tests with coverage
+npm run test:coverage
+```
+
+### Testing
+
+This project includes comprehensive unit and integration tests:
+
+-   **109 tests** across 4 test files
+-   Unit tests for utility functions
+-   Type validation tests
+-   Placeholder processing tests
+-   Integration tests for storage layer
+
+```bash
+# Run all tests in watch mode
+npm test
+
+# Run tests once (CI mode)
+npm run test:run
+
+# View coverage report
+npm run test:coverage
 ```
 
 ## Installation
