@@ -13,6 +13,12 @@
       "title": "Manage Prompts",
       "description": "View, search, and manage your saved prompts",
       "mode": "view"
+    },
+    {
+      "name": "create-sample-prompts",
+      "title": "Create Sample Prompts",
+      "description": "Add sample prompts for testing placeholder features",
+      "mode": "no-view"
     }
   ],
   "dependencies": {

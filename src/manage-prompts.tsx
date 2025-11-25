@@ -14,6 +14,7 @@ import {
 } from "@raycast/api";
 import { useEffect, useState } from "react";
 import { createPrompt, deletePrompt, listPrompts, updatePrompt } from "./lib/promptStorage";
+import { fillPromptBody, fillPromptForPaste, hasPlaceholders } from "./lib/placeholder";
 import { Prompt, PromptFormValues } from "./types/prompt";
 
 /**
@@ -84,7 +85,7 @@ export default function ManagePromptsCommand() {
   }
 
   /**
-   * プロンプト本文をクリップボードにコピー
+   * プロンプト本文をクリップボードにコピー（プレースホルダ処理なし）
    */
   async function handleCopyToClipboard(prompt: Prompt) {
     try {
@@ -104,7 +105,7 @@ export default function ManagePromptsCommand() {
   }
 
   /**
-   * プロンプト本文をアクティブなアプリにペースト
+   * プロンプト本文をアクティブなアプリにペースト（プレースホルダ処理なし）
    */
   async function handlePasteToActiveApp(prompt: Prompt) {
     try {
@@ -120,6 +121,97 @@ export default function ManagePromptsCommand() {
         title: "Failed to Paste",
         message: error instanceof Error ? error.message : "An unknown error occurred",
       });
+    }
+  }
+
+  /**
+   * プレースホルダを処理してクリップボードにコピー
+   * {clipboard} を展開し、{cursor} を削除する
+   */
+  async function handleCopyFilledPrompt(prompt: Prompt) {
+    try {
+      // プレースホルダを処理
+      const filledText = await fillPromptBody(prompt.body);
+      
+      await Clipboard.copy(filledText);
+      await showToast({
+        style: Toast.Style.Success,
+        title: "Copied Filled Prompt",
+        message: `"${prompt.title}" copied to clipboard`,
+      });
+    } catch (error) {
+      await showToast({
+        style: Toast.Style.Failure,
+        title: "Failed to Copy Filled Prompt",
+        message: error instanceof Error ? error.message : "An unknown error occurred",
+      });
+    }
+  }
+
+  /**
+   * プレースホルダを処理してアクティブなアプリにペースト
+   * {cursor} がある場合は、全文をペーストしてからカーソルを自動的にその位置に移動
+   */
+  async function handlePasteFilledPrompt(prompt: Prompt) {
+    try {
+      // プレースホルダを処理
+      const { text, cursorOffset } = await fillPromptForPaste(prompt.body);
+      
+      // 全文をペースト
+      await Clipboard.paste(text);
+
+      // {cursor} がある場合は、カーソルを左に移動
+      if (cursorOffset !== null && cursorOffset > 0) {
+        // AppleScript を使ってカーソルを移動
+        await moveCursorLeft(cursorOffset);
+        
+        await showToast({
+          style: Toast.Style.Success,
+          title: "Pasted with Cursor",
+          message: "Cursor positioned at {cursor} location",
+        });
+      } else {
+        await showToast({
+          style: Toast.Style.Success,
+          title: "Pasted Filled Prompt",
+          message: `"${prompt.title}" pasted successfully`,
+        });
+      }
+    } catch (error) {
+      await showToast({
+        style: Toast.Style.Failure,
+        title: "Failed to Paste Filled Prompt",
+        message: error instanceof Error ? error.message : "An unknown error occurred",
+      });
+    }
+  }
+
+  /**
+   * AppleScript を使ってカーソルを左に移動
+   */
+  async function moveCursorLeft(count: number) {
+    const script = `
+      tell application "System Events"
+        repeat ${count} times
+          key code 123
+        end repeat
+      end tell
+    `;
+    
+    try {
+      const { exec } = await import("child_process");
+      await new Promise<void>((resolve, reject) => {
+        exec(`osascript -e '${script.replace(/'/g, "'\"'\"'")}'`, (error) => {
+          if (error) {
+            reject(error);
+          } else {
+            resolve();
+          }
+        });
+      });
+    } catch (error) {
+      console.error("Failed to move cursor:", error);
+      // カーソル移動に失敗してもエラーにしない（ペースト自体は成功しているため）
     }
   }
 
@@ -189,6 +281,8 @@ export default function ManagePromptsCommand() {
           actions={<PromptActions prompt={prompt} onRefresh={loadPrompts} handlers={{
             onCopy: handleCopyToClipboard,
             onPaste: handlePasteToActiveApp,
+            onCopyFilled: handleCopyFilledPrompt,
+            onPasteFilled: handlePasteFilledPrompt,
             onDelete: handleDeletePrompt,
           }} />}
         />
@@ -207,26 +301,57 @@ interface PromptActionsProps {
   handlers: {
     onCopy: (prompt: Prompt) => void;
     onPaste: (prompt: Prompt) => void;
+    onCopyFilled: (prompt: Prompt) => void;
+    onPasteFilled: (prompt: Prompt) => void;
     onDelete: (prompt: Prompt) => void;
   };
 }
 
 function PromptActions({ prompt, onRefresh, handlers }: PromptActionsProps) {
+  // プレースホルダが含まれているかチェック
+  const hasPH = hasPlaceholders(prompt.body);
+
   return (
     <ActionPanel>
       {/* 主要アクション: コピー・ペースト */}
       <ActionPanel.Section title="Quick Actions">
-        <Action
-          title="Copy to Clipboard"
-          icon={Icon.Clipboard}
-          onAction={() => handlers.onCopy(prompt)}
-        />
-        <Action
-          title="Paste to Active App"
-          icon={Icon.ArrowRight}
-          shortcut={{ modifiers: ["cmd"], key: "p" }}
-          onAction={() => handlers.onPaste(prompt)}
-        />
+        {hasPH ? (
+          // プレースホルダがある場合は "Filled" アクションを優先表示
+          <>
+            <Action
+              title="Paste Filled Prompt to Active App"
+              icon={Icon.ArrowRight}
+              onAction={() => handlers.onPasteFilled(prompt)}
+            />
+            <Action
+              title="Copy Filled Prompt to Clipboard"
+              icon={Icon.Clipboard}
+              shortcut={{ modifiers: ["cmd"], key: "return" }}
+              onAction={() => handlers.onCopyFilled(prompt)}
+            />
+            <Action
+              title="Copy Raw Prompt"
+              icon={Icon.Document}
+              shortcut={{ modifiers: ["cmd", "shift"], key: "c" }}
+              onAction={() => handlers.onCopy(prompt)}
+            />
+          </>
+        ) : (
+          // プレースホルダがない場合は通常のアクション
+          <>
+            <Action
+              title="Paste to Active App"
+              icon={Icon.ArrowRight}
+              onAction={() => handlers.onPaste(prompt)}
+            />
+            <Action
+              title="Copy to Clipboard"
+              icon={Icon.Clipboard}
+              shortcut={{ modifiers: ["cmd"], key: "return" }}
+              onAction={() => handlers.onCopy(prompt)}
+            />
+          </>
+        )}
       </ActionPanel.Section>
 
       {/* 管理アクション: 作成・編集・削除 */}
@@ -263,7 +388,7 @@ function PromptActions({ prompt, onRefresh, handlers }: PromptActionsProps) {
         <Action.CopyToClipboard
           title="Copy Prompt ID"
           content={prompt.id}
-          shortcut={{ modifiers: ["cmd", "shift"], key: "c" }}
+          shortcut={{ modifiers: ["cmd", "shift"], key: "i" }}
         />
       </ActionPanel.Section>
     </ActionPanel>

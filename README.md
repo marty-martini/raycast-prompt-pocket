@@ -18,6 +18,23 @@ Raycast Extension for managing and reusing text prompts.
 4. Use `⌘ + E` to edit an existing prompt
 5. Use `⌘ + ⌫` to delete a prompt
 
+## Testing
+
+### Create Sample Prompts
+
+テスト用のサンプルプロンプトを作成できます：
+
+1. Raycast を開く
+2. `Create Sample Prompts` コマンドを実行
+3. 10個のサンプルプロンプトが自動的に追加されます
+
+サンプルには以下が含まれます：
+- `{clipboard}` のみ使用するパターン
+- `{cursor}` のみ使用するパターン
+- 両方のプレースホルダーを使用するパターン
+- カーソル位置のテスト（前半、中盤、末尾）
+- 実用的なテンプレート（バグレポート、PR説明、メール返信など）
+
 ## Development
 
 ```bash
