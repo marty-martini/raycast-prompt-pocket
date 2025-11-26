@@ -4,6 +4,7 @@ import { Prompt } from "../types/prompt";
 import { fillPromptBody, fillPromptForPaste } from "../lib/placeholder";
 import { moveCursorLeft } from "../lib/cursorControl";
 import { showSuccessToast, showErrorToast } from "../lib/toastUtils";
+import { updateLastUsed } from "../lib/promptStorage";
 
 /**
  * プロンプトアクション用のカスタムフック
@@ -15,9 +16,14 @@ export function usePromptActions() {
    */
   const copyToClipboard = useCallback(async (prompt: Prompt) => {
     try {
+      console.log('[copyToClipboard] Starting');
       await Clipboard.copy(prompt.body);
+      console.log('[copyToClipboard] Updating last used');
+      await updateLastUsed(prompt.id);
+      console.log('[copyToClipboard] Showing success toast');
       await showSuccessToast("Copied to Clipboard", `"${prompt.title}" copied`);
     } catch (error) {
+      console.error('[copyToClipboard] Error:', error);
       await showErrorToast("Failed to Copy", error);
     }
   }, []);
@@ -27,9 +33,14 @@ export function usePromptActions() {
    */
   const pasteToActiveApp = useCallback(async (prompt: Prompt) => {
     try {
+      console.log('[pasteToActiveApp] Starting');
       await Clipboard.paste(prompt.body);
+      console.log('[pasteToActiveApp] Updating last used');
+      await updateLastUsed(prompt.id);
+      console.log('[pasteToActiveApp] Showing success toast');
       await showSuccessToast("Pasted to Active App", `"${prompt.title}" pasted`);
     } catch (error) {
+      console.error('[pasteToActiveApp] Error:', error);
       await showErrorToast("Failed to Paste", error);
     }
   }, []);
@@ -39,10 +50,15 @@ export function usePromptActions() {
    */
   const copyFilledPrompt = useCallback(async (prompt: Prompt) => {
     try {
+      console.log('[copyFilledPrompt] Starting');
       const filledText = await fillPromptBody(prompt.body);
       await Clipboard.copy(filledText);
+      console.log('[copyFilledPrompt] Updating last used');
+      await updateLastUsed(prompt.id);
+      console.log('[copyFilledPrompt] Showing success toast');
       await showSuccessToast("Copied Filled Prompt", `"${prompt.title}" copied to clipboard`);
     } catch (error) {
+      console.error('[copyFilledPrompt] Error:', error);
       await showErrorToast("Failed to Copy Filled Prompt", error);
     }
   }, []);
@@ -53,8 +69,12 @@ export function usePromptActions() {
    */
   const pasteFilledPrompt = useCallback(async (prompt: Prompt) => {
     try {
+      console.log('[pasteFilledPrompt] Starting');
       const { text, cursorOffset } = await fillPromptForPaste(prompt.body);
       await Clipboard.paste(text);
+      console.log('[pasteFilledPrompt] Updating last used');
+      await updateLastUsed(prompt.id);
+      console.log('[pasteFilledPrompt] Last used updated');
 
       if (cursorOffset !== null && cursorOffset > 0) {
         const result = await moveCursorLeft(cursorOffset);
@@ -69,6 +89,7 @@ export function usePromptActions() {
         await showSuccessToast("Pasted Filled Prompt", `"${prompt.title}" pasted successfully`);
       }
     } catch (error) {
+      console.error('[pasteFilledPrompt] Error:', error);
       await showErrorToast("Failed to Paste Filled Prompt", error);
     }
   }, []);

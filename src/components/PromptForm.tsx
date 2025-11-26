@@ -125,7 +125,7 @@ export function PromptForm({ prompt, onSave }: PromptFormProps) {
       {prompt && (
         <Form.Description
           title="Info"
-          text={`Created: ${new Date(prompt.createdAt).toLocaleString()}\nLast Updated: ${new Date(prompt.updatedAt).toLocaleString()}`}
+          text={`Created: ${new Date(prompt.createdAt).toLocaleString()}\nLast Updated: ${new Date(prompt.updatedAt).toLocaleString()}${prompt.lastUsedAt ? `\nLast Used: ${new Date(prompt.lastUsedAt).toLocaleString()}` : ""}`}
         />
       )}
     </Form>

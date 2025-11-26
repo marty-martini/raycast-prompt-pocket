@@ -14,6 +14,8 @@ export interface Prompt {
   createdAt: string;
   /** 更新日時 (ISO形式) */
   updatedAt: string;
+  /** 最終利用日時 (ISO形式) */
+  lastUsedAt?: string;
 }
 
 /**
@@ -59,7 +61,8 @@ export function isValidPrompt(data: unknown): data is Prompt {
     typeof obj.body === "string" &&
     typeof obj.createdAt === "string" &&
     typeof obj.updatedAt === "string" &&
-    (obj.tags === undefined || (Array.isArray(obj.tags) && obj.tags.every((t) => typeof t === "string")))
+    (obj.tags === undefined || (Array.isArray(obj.tags) && obj.tags.every((t) => typeof t === "string"))) &&
+    (obj.lastUsedAt === undefined || typeof obj.lastUsedAt === "string")
   );
 }
 
@@ -96,6 +99,9 @@ export function sanitizePrompt(data: unknown): Prompt | null {
     }
   }
 
+  // lastUsedAt の処理
+  const lastUsedAt = typeof obj.lastUsedAt === "string" ? obj.lastUsedAt : undefined;
+
   return {
     id: obj.id,
     title: obj.title,
@@ -103,6 +109,7 @@ export function sanitizePrompt(data: unknown): Prompt | null {
     tags,
     createdAt,
     updatedAt,
+    lastUsedAt,
   };
 }
 

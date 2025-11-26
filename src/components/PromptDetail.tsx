@@ -73,6 +73,15 @@ export function PromptDetail({ prompt }: PromptDetailProps) {
         subtitle={new Date(prompt.updatedAt).toLocaleString()}
         accessories={[{ text: formatRelativeTime(new Date(prompt.updatedAt)) }]}
       />
+
+      {prompt.lastUsedAt && (
+        <List.Item
+          icon={Icon.Checkmark}
+          title="Last Used"
+          subtitle={new Date(prompt.lastUsedAt).toLocaleString()}
+          accessories={[{ text: formatRelativeTime(new Date(prompt.lastUsedAt)) }]}
+        />
+      )}
     </List>
   );
 }

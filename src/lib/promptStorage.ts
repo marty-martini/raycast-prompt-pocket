@@ -57,14 +57,25 @@ async function savePromptsToStorage(prompts: Prompt[]): Promise<void> {
 }
 
 /**
- * すべてのプロンプトを取得（updatedAt 降順でソート済み）
+ * すべてのプロンプトを取得
+ * ソート順：利用が新しい順 → 登録が新しい順
  */
 export async function listPrompts(): Promise<Prompt[]> {
   const prompts = await loadPromptsFromStorage();
   
-  // updatedAt で降順ソート（新しいものが先）
+  // 1. 利用が新しい順（lastUsedAt 降順）
+  // 2. 登録が新しい順（createdAt 降順）
   return prompts.sort((a, b) => {
-    return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+    // lastUsedAt が存在する場合、それを優先
+    const aLastUsed = a.lastUsedAt ? new Date(a.lastUsedAt).getTime() : 0;
+    const bLastUsed = b.lastUsedAt ? new Date(b.lastUsedAt).getTime() : 0;
+    
+    if (aLastUsed !== bLastUsed) {
+      return bLastUsed - aLastUsed; // 利用が新しい順
+    }
+    
+    // lastUsedAt が同じ（または両方未設定）の場合、createdAt で比較
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(); // 登録が新しい順
   });
 }
 
@@ -197,5 +208,32 @@ export async function searchPrompts(query: string): Promise<Prompt[]> {
     p.body.toLowerCase().includes(lowerQuery) ||
     p.tags?.some((t) => t.toLowerCase().includes(lowerQuery))
   );
+}
+
+/**
+ * プロンプトの最終利用日時を更新
+ */
+export async function updateLastUsed(id: string): Promise<Prompt> {
+  console.log(`[updateLastUsed] Updating last used time for prompt ${id}`);
+  const prompts = await loadPromptsFromStorage();
+  const index = prompts.findIndex((p) => p.id === id);
+
+  if (index === -1) {
+    console.error(`[updateLastUsed] Prompt with id "${id}" not found`);
+    throw new PromptManagerError(`Prompt with id "${id}" not found`, ErrorCode.PROMPT_NOT_FOUND);
+  }
+
+  const now = new Date().toISOString();
+  const updatedPrompt: Prompt = {
+    ...prompts[index],
+    lastUsedAt: now,
+  };
+
+  console.log(`[updateLastUsed] Updated prompt:`, updatedPrompt);
+  prompts[index] = updatedPrompt;
+  await savePromptsToStorage(prompts);
+
+  console.log(`[updateLastUsed] Successfully saved to storage`);
+  return updatedPrompt;
 }
 

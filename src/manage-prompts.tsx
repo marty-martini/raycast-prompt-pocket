@@ -99,8 +99,10 @@ function PromptListItem({ prompt, onRefresh, onDelete, actions }: PromptListItem
       accessories={[
         ...(prompt.tags?.map((tag) => ({ tag: { value: tag, color: Color.Blue } })) ?? []),
         {
-          date: new Date(prompt.updatedAt),
-          tooltip: `Updated: ${new Date(prompt.updatedAt).toLocaleString()}`,
+          date: new Date(prompt.lastUsedAt || prompt.updatedAt),
+          tooltip: prompt.lastUsedAt 
+            ? `Last Used: ${new Date(prompt.lastUsedAt).toLocaleString()}`
+            : `Updated: ${new Date(prompt.updatedAt).toLocaleString()}`,
         },
       ]}
       actions={
