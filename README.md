@@ -1,6 +1,8 @@
-# Prompt Manager
+# Prompt Pocket
 
-Raycast Extension for managing and reusing text prompts.
+A Raycast Extension for managing and reusing text prompts efficiently.
+
+[日本語版 README はこちら](README.ja.md)
 
 ## Features
 
@@ -9,6 +11,7 @@ Raycast Extension for managing and reusing text prompts.
 - 📋 Quick copy to clipboard
 - 🏷️ Tag-based organization
 - ✏️ Easy editing and management
+- 🎯 Placeholder support: `{clipboard}` and `{cursor}`
 
 ## Usage
 
@@ -18,22 +21,26 @@ Raycast Extension for managing and reusing text prompts.
 4. Use `⌘ + E` to edit an existing prompt
 5. Use `⌘ + ⌫` to delete a prompt
 
-## Testing
+### Placeholders
 
-### Create Sample Prompts
+Prompts support dynamic placeholders:
 
-テスト用のサンプルプロンプトを作成できます：
+- **`{clipboard}`**: Inserts current clipboard content
+- **`{cursor}`**: Sets cursor position after paste
 
-1. Raycast を開く
-2. `Create Sample Prompts` コマンドを実行
-3. 10個のサンプルプロンプトが自動的に追加されます
+Example:
+```
+Bug Report: {clipboard}
 
-サンプルには以下が含まれます：
-- `{clipboard}` のみ使用するパターン
-- `{cursor}` のみ使用するパターン
-- 両方のプレースホルダーを使用するパターン
-- カーソル位置のテスト（前半、中盤、末尾）
-- 実用的なテンプレート（バグレポート、PR説明、メール返信など）
+Steps to reproduce:
+1. {cursor}
+2. 
+3. 
+```
+
+## Installation
+
+Install via [Raycast Store](https://www.raycast.com/marty-martini/prompt-pocket)
 
 ## Development
 
@@ -44,25 +51,19 @@ npm install
 # Run in development mode
 npm run dev
 
-# Run tests
-npm test
-
-# Run tests with UI
-npm run test:ui
-
-# Run tests with coverage
-npm run test:coverage
+# Build extension
+npm run build
 ```
 
 ### Testing
 
 This project includes comprehensive unit and integration tests:
 
--   **109 tests** across 4 test files
--   Unit tests for utility functions
--   Type validation tests
--   Placeholder processing tests
--   Integration tests for storage layer
+- **109 tests** across 4 test files
+- Unit tests for utility functions
+- Type validation tests
+- Placeholder processing tests
+- Integration tests for storage layer
 
 ```bash
 # Run all tests in watch mode
@@ -75,11 +76,7 @@ npm run test:run
 npm run test:coverage
 ```
 
-## Installation
+## License
 
-Install via Raycast Store or build locally:
-
-```bash
-npm run build
-```
+MIT License - see [LICENSE](LICENSE) file for details
 

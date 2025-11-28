@@ -1,10 +1,21 @@
 {
   "$schema": "https://www.raycast.com/schemas/extension.json",
-  "name": "prompt-manager",
-  "title": "Prompt Manager",
+  "name": "prompt-pocket",
+  "title": "Prompt Pocket",
   "description": "Save, edit, and reuse text prompts with ease",
-  "icon": "📝",
+  "icon": "assets/icon.png",
   "author": "marty-martini",
+  "categories": [
+    "Productivity",
+    "Developer Tools"
+  ],
+  "keywords": [
+    "prompt",
+    "clipboard",
+    "template",
+    "text",
+    "snippet"
+  ],
   "license": "MIT",
   "version": "1.0.0",
   "commands": [
@@ -13,12 +24,6 @@
       "title": "Manage Prompts",
       "description": "View, search, and manage your saved prompts",
       "mode": "view"
-    },
-    {
-      "name": "create-sample-prompts",
-      "title": "Create Sample Prompts",
-      "description": "Add sample prompts for testing placeholder features",
-      "mode": "no-view"
     }
   ],
   "dependencies": {
