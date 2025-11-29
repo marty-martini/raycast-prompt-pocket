@@ -10,8 +10,7 @@ import {
   findPromptsByTag,
   searchPrompts,
 } from "../promptStorage";
-import { Prompt } from "../../types/prompt";
-import { PromptManagerError, ErrorCode } from "../../types/errors";
+import { PromptManagerError } from "../../types/errors";
 import { LocalStorage } from "@raycast/api";
 
 // LocalStorage のモックストレージ
