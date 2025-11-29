@@ -30,7 +30,6 @@ Branch protection rules help ensure that all changes to important branches go th
 - ✅ **Require status checks to pass before merging**
   - `lint` - Code linting must pass
   - `test` - All tests must pass
-  - `build` - Build must succeed
   - `validation` - Overall validation check
 - ✅ **Require branches to be up to date before merging**
 
@@ -79,7 +78,6 @@ Branch protection rules help ensure that all changes to important branches go th
       Status checks that are required:
         - lint
         - test
-        - build
         - validation
    
    ☑️ Require conversation resolution before merging
@@ -129,7 +127,7 @@ Branch protection rules help ensure that all changes to important branches go th
 │  Create PR      │  ← Open PR to main
 └────────┬────────┘
          │
-         ├─→ ✓ CI/CD runs (lint, test, build)
+         ├─→ ✓ CI/CD runs (lint, test)
          ├─→ ✓ Code review required
          ├─→ ✓ Conversations resolved
          ├─→ ✓ Branch up to date
