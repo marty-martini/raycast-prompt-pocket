@@ -77,7 +77,9 @@ describe("prompt types", () => {
     });
 
     it("should return false for tags array with non-string elements", () => {
-      expect(isValidPrompt({ ...validPrompt, tags: ["valid", 123, "another"] })).toBe(false);
+      expect(
+        isValidPrompt({ ...validPrompt, tags: ["valid", 123, "another"] }),
+      ).toBe(false);
     });
 
     it("should return true for empty tags array", () => {
@@ -203,4 +205,3 @@ describe("prompt types", () => {
     });
   });
 });
-

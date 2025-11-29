@@ -5,7 +5,7 @@ export class PromptManagerError extends Error {
   constructor(
     message: string,
     public readonly code: ErrorCode,
-    public readonly cause?: unknown
+    public readonly cause?: unknown,
   ) {
     super(message);
     this.name = "PromptManagerError";
@@ -28,7 +28,10 @@ export enum ErrorCode {
 /**
  * エラーを PromptManagerError に変換
  */
-export function toPromptManagerError(error: unknown, defaultCode: ErrorCode): PromptManagerError {
+export function toPromptManagerError(
+  error: unknown,
+  defaultCode: ErrorCode,
+): PromptManagerError {
   if (error instanceof PromptManagerError) {
     return error;
   }
@@ -69,4 +72,3 @@ export function getErrorMessage(error: unknown): string {
 
   return "An unknown error occurred.";
 }
-

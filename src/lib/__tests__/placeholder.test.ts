@@ -61,9 +61,12 @@ describe("placeholder", () => {
     });
 
     it("should handle both {clipboard} and {cursor}", async () => {
-      const result = await fillPromptBody("Hello {clipboard}! {cursor} Goodbye", {
-        clipboardText: "World",
-      });
+      const result = await fillPromptBody(
+        "Hello {clipboard}! {cursor} Goodbye",
+        {
+          clipboardText: "World",
+        },
+      );
       expect(result).toBe("Hello World!  Goodbye");
     });
 
@@ -115,9 +118,12 @@ Line 3: End`);
     });
 
     it("should handle {clipboard} and {cursor} together", async () => {
-      const result = await fillPromptForPaste("Text: {clipboard} {cursor} End", {
-        clipboardText: "VALUE",
-      });
+      const result = await fillPromptForPaste(
+        "Text: {clipboard} {cursor} End",
+        {
+          clipboardText: "VALUE",
+        },
+      );
       expect(result).toEqual({
         text: "Text: VALUE  End",
         cursorOffset: 4, // " End" = 4 characters
@@ -199,7 +205,9 @@ Line 3`);
 
   describe("SUPPORTED_PLACEHOLDERS", () => {
     it("should define clipboard placeholder", () => {
-      const clipboard = SUPPORTED_PLACEHOLDERS.find((p) => p.name === "clipboard");
+      const clipboard = SUPPORTED_PLACEHOLDERS.find(
+        (p) => p.name === "clipboard",
+      );
       expect(clipboard).toBeDefined();
       expect(clipboard?.syntax).toBe("{clipboard}");
       expect(clipboard?.description).toContain("クリップボード");
@@ -217,4 +225,3 @@ Line 3`);
     });
   });
 });
-

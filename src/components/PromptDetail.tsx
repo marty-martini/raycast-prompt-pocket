@@ -26,7 +26,11 @@ export function PromptDetail({ prompt }: PromptDetailProps) {
       <List.Item
         icon={Icon.Text}
         title="Body"
-        subtitle={prompt.body.length > 100 ? prompt.body.slice(0, 100) + "..." : prompt.body}
+        subtitle={
+          prompt.body.length > 100
+            ? prompt.body.slice(0, 100) + "..."
+            : prompt.body
+        }
         accessories={[{ text: `${prompt.body.length} chars` }]}
         actions={
           <ActionPanel>
@@ -43,7 +47,10 @@ export function PromptDetail({ prompt }: PromptDetailProps) {
           accessories={[{ text: `${prompt.tags.length} tags` }]}
           actions={
             <ActionPanel>
-              <Action.CopyToClipboard title="Copy Tags" content={prompt.tags.join(", ")} />
+              <Action.CopyToClipboard
+                title="Copy Tags"
+                content={prompt.tags.join(", ")}
+              />
             </ActionPanel>
           }
         />
@@ -55,7 +62,7 @@ export function PromptDetail({ prompt }: PromptDetailProps) {
         subtitle={prompt.id}
         actions={
           <ActionPanel>
-            <Action.CopyToClipboard title="Copy ID" content={prompt.id} />
+            <Action.CopyToClipboard title="Copy Id" content={prompt.id} />
           </ActionPanel>
         }
       />
@@ -79,7 +86,9 @@ export function PromptDetail({ prompt }: PromptDetailProps) {
           icon={Icon.Checkmark}
           title="Last Used"
           subtitle={new Date(prompt.lastUsedAt).toLocaleString()}
-          accessories={[{ text: formatRelativeTime(new Date(prompt.lastUsedAt)) }]}
+          accessories={[
+            { text: formatRelativeTime(new Date(prompt.lastUsedAt)) },
+          ]}
         />
       )}
     </List>
@@ -109,4 +118,3 @@ function formatRelativeTime(date: Date): string {
     return date.toLocaleDateString();
   }
 }
-

@@ -49,7 +49,9 @@ export default function ManagePromptsCommand() {
         icon={Icon.Document}
         title="No Prompts Found"
         description={
-          searchText ? "No prompts match your search. Try different keywords." : "Create your first prompt to get started"
+          searchText
+            ? "No prompts match your search. Try different keywords."
+            : "Create your first prompt to get started"
         }
         actions={
           <ActionPanel>
@@ -88,7 +90,12 @@ interface PromptListItemProps {
   actions: ReturnType<typeof usePromptActions>;
 }
 
-function PromptListItem({ prompt, onRefresh, onDelete, actions }: PromptListItemProps) {
+function PromptListItem({
+  prompt,
+  onRefresh,
+  onDelete,
+  actions,
+}: PromptListItemProps) {
   const hasPH = hasPlaceholders(prompt.body);
 
   return (
@@ -97,10 +104,12 @@ function PromptListItem({ prompt, onRefresh, onDelete, actions }: PromptListItem
       title={prompt.title}
       subtitle={truncateText(prompt.body, 60)}
       accessories={[
-        ...(prompt.tags?.map((tag) => ({ tag: { value: tag, color: Color.Blue } })) ?? []),
+        ...(prompt.tags?.map((tag) => ({
+          tag: { value: tag, color: Color.Blue },
+        })) ?? []),
         {
           date: new Date(prompt.lastUsedAt || prompt.updatedAt),
-          tooltip: prompt.lastUsedAt 
+          tooltip: prompt.lastUsedAt
             ? `Last Used: ${new Date(prompt.lastUsedAt).toLocaleString()}`
             : `Updated: ${new Date(prompt.updatedAt).toLocaleString()}`,
         },
@@ -178,7 +187,7 @@ function PromptListItem({ prompt, onRefresh, onDelete, actions }: PromptListItem
               shortcut={{ modifiers: ["cmd"], key: "d" }}
             />
             <Action.CopyToClipboard
-              title="Copy Prompt ID"
+              title="Copy Prompt Id"
               content={prompt.id}
               shortcut={{ modifiers: ["cmd", "shift"], key: "i" }}
             />

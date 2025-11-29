@@ -1,6 +1,12 @@
 import { useEffect, useState, useCallback } from "react";
 import { Prompt, CreatePromptInput, UpdatePromptInput } from "../types/prompt";
-import { listPrompts, createPrompt, updatePrompt, deletePrompt, updateLastUsed } from "../lib/promptStorage";
+import {
+  listPrompts,
+  createPrompt,
+  updatePrompt,
+  deletePrompt,
+  updateLastUsed,
+} from "../lib/promptStorage";
 
 /**
  * プロンプト管理用のカスタムフック
@@ -35,20 +41,26 @@ export function usePrompts() {
   /**
    * 新しいプロンプトを作成
    */
-  const create = useCallback(async (input: CreatePromptInput): Promise<Prompt> => {
-    const newPrompt = await createPrompt(input);
-    setPrompts((prev) => [newPrompt, ...prev]);
-    return newPrompt;
-  }, []);
+  const create = useCallback(
+    async (input: CreatePromptInput): Promise<Prompt> => {
+      const newPrompt = await createPrompt(input);
+      setPrompts((prev) => [newPrompt, ...prev]);
+      return newPrompt;
+    },
+    [],
+  );
 
   /**
    * プロンプトを更新
    */
-  const update = useCallback(async (id: string, patch: UpdatePromptInput): Promise<Prompt> => {
-    const updated = await updatePrompt(id, patch);
-    setPrompts((prev) => prev.map((p) => (p.id === id ? updated : p)));
-    return updated;
-  }, []);
+  const update = useCallback(
+    async (id: string, patch: UpdatePromptInput): Promise<Prompt> => {
+      const updated = await updatePrompt(id, patch);
+      setPrompts((prev) => prev.map((p) => (p.id === id ? updated : p)));
+      return updated;
+    },
+    [],
+  );
 
   /**
    * プロンプトを削除
@@ -74,14 +86,23 @@ export function usePrompts() {
         const sortedList = [...updatedList].sort((a, b) => {
           const aLastUsed = a.lastUsedAt ? new Date(a.lastUsedAt).getTime() : 0;
           const bLastUsed = b.lastUsedAt ? new Date(b.lastUsedAt).getTime() : 0;
-          
+
           if (aLastUsed !== bLastUsed) {
             return bLastUsed - aLastUsed;
           }
-          
-          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+
+          return (
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          );
         });
-        console.log(`[markAsUsed] Sorted prompts:`, sortedList.map(p => ({ id: p.id, title: p.title, lastUsedAt: p.lastUsedAt })));
+        console.log(
+          `[markAsUsed] Sorted prompts:`,
+          sortedList.map((p) => ({
+            id: p.id,
+            title: p.title,
+            lastUsedAt: p.lastUsedAt,
+          })),
+        );
         return sortedList;
       });
       console.log(`[markAsUsed] State update completed`);
@@ -102,4 +123,3 @@ export function usePrompts() {
     markAsUsed,
   };
 }
-

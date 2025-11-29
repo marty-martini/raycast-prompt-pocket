@@ -1,7 +1,16 @@
 import { LocalStorage } from "@raycast/api";
 import { v4 as uuidv4 } from "uuid";
-import { CreatePromptInput, Prompt, sanitizePrompt, UpdatePromptInput } from "../types/prompt";
-import { ErrorCode, PromptManagerError, toPromptManagerError } from "../types/errors";
+import {
+  CreatePromptInput,
+  Prompt,
+  sanitizePrompt,
+  UpdatePromptInput,
+} from "../types/prompt";
+import {
+  ErrorCode,
+  PromptManagerError,
+  toPromptManagerError,
+} from "../types/errors";
 
 /**
  * LocalStorage のキー
@@ -21,7 +30,10 @@ async function loadPromptsFromStorage(): Promise<Prompt[]> {
     const parsed: unknown = JSON.parse(stored);
     if (!Array.isArray(parsed)) {
       console.error("Stored data is not an array");
-      throw new PromptManagerError("Invalid data format in storage", ErrorCode.STORAGE_READ_FAILED);
+      throw new PromptManagerError(
+        "Invalid data format in storage",
+        ErrorCode.STORAGE_READ_FAILED,
+      );
     }
 
     // 各要素をサニタイズして有効なプロンプトのみを返す
@@ -38,7 +50,11 @@ async function loadPromptsFromStorage(): Promise<Prompt[]> {
     return prompts;
   } catch (error) {
     if (error instanceof SyntaxError) {
-      throw new PromptManagerError("Corrupted storage data", ErrorCode.STORAGE_READ_FAILED, error);
+      throw new PromptManagerError(
+        "Corrupted storage data",
+        ErrorCode.STORAGE_READ_FAILED,
+        error,
+      );
     }
     throw toPromptManagerError(error, ErrorCode.STORAGE_READ_FAILED);
   }
@@ -62,18 +78,18 @@ async function savePromptsToStorage(prompts: Prompt[]): Promise<void> {
  */
 export async function listPrompts(): Promise<Prompt[]> {
   const prompts = await loadPromptsFromStorage();
-  
+
   // 1. 利用が新しい順（lastUsedAt 降順）
   // 2. 登録が新しい順（createdAt 降順）
   return prompts.sort((a, b) => {
     // lastUsedAt が存在する場合、それを優先
     const aLastUsed = a.lastUsedAt ? new Date(a.lastUsedAt).getTime() : 0;
     const bLastUsed = b.lastUsedAt ? new Date(b.lastUsedAt).getTime() : 0;
-    
+
     if (aLastUsed !== bLastUsed) {
       return bLastUsed - aLastUsed; // 利用が新しい順
     }
-    
+
     // lastUsedAt が同じ（または両方未設定）の場合、createdAt で比較
     return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(); // 登録が新しい順
   });
@@ -93,10 +109,16 @@ export async function getPrompt(id: string): Promise<Prompt | undefined> {
 export async function createPrompt(input: CreatePromptInput): Promise<Prompt> {
   // バリデーション
   if (!input.title.trim()) {
-    throw new PromptManagerError("Title is required", ErrorCode.VALIDATION_FAILED);
+    throw new PromptManagerError(
+      "Title is required",
+      ErrorCode.VALIDATION_FAILED,
+    );
   }
   if (!input.body.trim()) {
-    throw new PromptManagerError("Body is required", ErrorCode.VALIDATION_FAILED);
+    throw new PromptManagerError(
+      "Body is required",
+      ErrorCode.VALIDATION_FAILED,
+    );
   }
 
   const now = new Date().toISOString();
@@ -119,12 +141,18 @@ export async function createPrompt(input: CreatePromptInput): Promise<Prompt> {
 /**
  * 既存のプロンプトを更新
  */
-export async function updatePrompt(id: string, patch: UpdatePromptInput): Promise<Prompt> {
+export async function updatePrompt(
+  id: string,
+  patch: UpdatePromptInput,
+): Promise<Prompt> {
   const prompts = await loadPromptsFromStorage();
   const index = prompts.findIndex((p) => p.id === id);
 
   if (index === -1) {
-    throw new PromptManagerError(`Prompt with id "${id}" not found`, ErrorCode.PROMPT_NOT_FOUND);
+    throw new PromptManagerError(
+      `Prompt with id "${id}" not found`,
+      ErrorCode.PROMPT_NOT_FOUND,
+    );
   }
 
   const existingPrompt = prompts[index];
@@ -133,20 +161,30 @@ export async function updatePrompt(id: string, patch: UpdatePromptInput): Promis
   // パッチを適用（undefined のフィールドは既存の値を保持）
   const updatedPrompt: Prompt = {
     ...existingPrompt,
-    title: patch.title !== undefined ? patch.title.trim() : existingPrompt.title,
+    title:
+      patch.title !== undefined ? patch.title.trim() : existingPrompt.title,
     body: patch.body !== undefined ? patch.body.trim() : existingPrompt.body,
-    tags: patch.tags !== undefined 
-      ? (patch.tags.length > 0 ? patch.tags : undefined)
-      : existingPrompt.tags,
+    tags:
+      patch.tags !== undefined
+        ? patch.tags.length > 0
+          ? patch.tags
+          : undefined
+        : existingPrompt.tags,
     updatedAt: now,
   };
 
   // バリデーション
   if (!updatedPrompt.title) {
-    throw new PromptManagerError("Title cannot be empty", ErrorCode.VALIDATION_FAILED);
+    throw new PromptManagerError(
+      "Title cannot be empty",
+      ErrorCode.VALIDATION_FAILED,
+    );
   }
   if (!updatedPrompt.body) {
-    throw new PromptManagerError("Body cannot be empty", ErrorCode.VALIDATION_FAILED);
+    throw new PromptManagerError(
+      "Body cannot be empty",
+      ErrorCode.VALIDATION_FAILED,
+    );
   }
 
   prompts[index] = updatedPrompt;
@@ -163,7 +201,10 @@ export async function deletePrompt(id: string): Promise<void> {
   const filtered = prompts.filter((p) => p.id !== id);
 
   if (filtered.length === prompts.length) {
-    throw new PromptManagerError(`Prompt with id "${id}" not found`, ErrorCode.PROMPT_NOT_FOUND);
+    throw new PromptManagerError(
+      `Prompt with id "${id}" not found`,
+      ErrorCode.PROMPT_NOT_FOUND,
+    );
   }
 
   await savePromptsToStorage(filtered);
@@ -190,9 +231,9 @@ export async function countPrompts(): Promise<number> {
 export async function findPromptsByTag(tag: string): Promise<Prompt[]> {
   const prompts = await listPrompts();
   const lowerTag = tag.toLowerCase();
-  
-  return prompts.filter((p) => 
-    p.tags?.some((t) => t.toLowerCase() === lowerTag)
+
+  return prompts.filter((p) =>
+    p.tags?.some((t) => t.toLowerCase() === lowerTag),
   );
 }
 
@@ -202,11 +243,12 @@ export async function findPromptsByTag(tag: string): Promise<Prompt[]> {
 export async function searchPrompts(query: string): Promise<Prompt[]> {
   const prompts = await listPrompts();
   const lowerQuery = query.toLowerCase();
-  
-  return prompts.filter((p) => 
-    p.title.toLowerCase().includes(lowerQuery) ||
-    p.body.toLowerCase().includes(lowerQuery) ||
-    p.tags?.some((t) => t.toLowerCase().includes(lowerQuery))
+
+  return prompts.filter(
+    (p) =>
+      p.title.toLowerCase().includes(lowerQuery) ||
+      p.body.toLowerCase().includes(lowerQuery) ||
+      p.tags?.some((t) => t.toLowerCase().includes(lowerQuery)),
   );
 }
 
@@ -220,7 +262,10 @@ export async function updateLastUsed(id: string): Promise<Prompt> {
 
   if (index === -1) {
     console.error(`[updateLastUsed] Prompt with id "${id}" not found`);
-    throw new PromptManagerError(`Prompt with id "${id}" not found`, ErrorCode.PROMPT_NOT_FOUND);
+    throw new PromptManagerError(
+      `Prompt with id "${id}" not found`,
+      ErrorCode.PROMPT_NOT_FOUND,
+    );
   }
 
   const now = new Date().toISOString();
@@ -236,4 +281,3 @@ export async function updateLastUsed(id: string): Promise<Prompt> {
   console.log(`[updateLastUsed] Successfully saved to storage`);
   return updatedPrompt;
 }
-

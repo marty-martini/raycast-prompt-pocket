@@ -3,7 +3,7 @@
   "name": "prompt-pocket",
   "title": "Prompt Pocket",
   "description": "Save, edit, and reuse text prompts with ease",
-  "icon": "assets/icon.png",
+  "icon": "icon.png",
   "author": "marty-martini",
   "categories": [
     "Productivity",

@@ -21,4 +21,3 @@ export function uniqueArray<T>(arr: T[]): T[] {
 export function isEmpty(str: string | undefined | null): boolean {
   return !str || str.trim().length === 0;
 }
-

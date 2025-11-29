@@ -54,7 +54,10 @@ export function PromptForm({ prompt, onSave }: PromptFormProps) {
           body: values.body.trim(),
           tags,
         });
-        await showSuccessToast("Prompt Updated", `"${values.title}" has been updated`);
+        await showSuccessToast(
+          "Prompt Updated",
+          `"${values.title}" has been updated`,
+        );
       } else {
         // 新規プロンプトを作成
         await createPrompt({
@@ -62,7 +65,10 @@ export function PromptForm({ prompt, onSave }: PromptFormProps) {
           body: values.body.trim(),
           tags,
         });
-        await showSuccessToast("Prompt Created", `"${values.title}" has been created`);
+        await showSuccessToast(
+          "Prompt Created",
+          `"${values.title}" has been created`,
+        );
       }
 
       // 成功したら親コンポーネントを更新してフォームを閉じる
@@ -147,4 +153,3 @@ function parseTagsFromString(tagsString: string): string[] | undefined {
 
   return tags.length > 0 ? tags : undefined;
 }
-

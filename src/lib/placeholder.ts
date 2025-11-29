@@ -11,16 +11,16 @@ export interface FillPromptOptions {
 
 /**
  * プロンプトテンプレート内のプレースホルダを処理する
- * 
+ *
  * サポートされるプレースホルダ:
  * - {clipboard}: 現在のクリップボードのテキストに置き換える
  * - {cursor}: カーソル位置のマーカー（削除される）
- * 
+ *
  * @param template - プレースホルダを含むテンプレート文字列
  * @param options - 処理オプション
  * @returns 処理後のテキスト
  * @throws PromptManagerError クリップボードアクセスに失敗した場合
- * 
+ *
  * @example
  * ```typescript
  * // クリップボードに "Hello" が入っている場合
@@ -30,7 +30,7 @@ export interface FillPromptOptions {
  */
 export async function fillPromptBody(
   template: string,
-  options?: FillPromptOptions
+  options?: FillPromptOptions,
 ): Promise<string> {
   try {
     let result = template;
@@ -56,7 +56,7 @@ export async function fillPromptBody(
 /**
  * プレースホルダを処理し、{cursor} の位置情報を含めて返す
  * ペースト用に特化した処理で、カーソル位置に自動的に移動できるようにする
- * 
+ *
  * @param template - プレースホルダを含むテンプレート文字列
  * @param options - 処理オプション
  * @returns { text: 処理済みテキスト, cursorOffset: {cursor}より後の文字数（カーソル移動用） }
@@ -64,7 +64,7 @@ export async function fillPromptBody(
  */
 export async function fillPromptForPaste(
   template: string,
-  options?: FillPromptOptions
+  options?: FillPromptOptions,
 ): Promise<{ text: string; cursorOffset: number | null }> {
   try {
     let result = template;
@@ -103,12 +103,12 @@ export async function fillPromptForPaste(
 
 /**
  * クリップボードからテキストを取得する
- * 
+ *
  * クリップボードが空またはテキストでない場合の挙動:
  * - クリップボードが空の場合: 空文字列を返す
  * - テキスト以外（画像など）の場合: 空文字列を返す
  * - エラーが発生した場合: エラーをスロー（呼び出し側でハンドリング）
- * 
+ *
  * @param providedText オプションで提供されるテキスト（テスト用）
  * @returns クリップボードのテキスト内容
  * @throws Error クリップボードアクセスに失敗した場合
@@ -172,7 +172,8 @@ export const SUPPORTED_PLACEHOLDERS = [
   {
     name: "cursor",
     syntax: "{cursor}",
-    description: "カーソル位置のマーカー。ペースト後、その位置にカーソルが配置されます",
+    description:
+      "カーソル位置のマーカー。ペースト後、その位置にカーソルが配置されます",
   },
 ] as const;
 
@@ -182,52 +183,51 @@ export const SUPPORTED_PLACEHOLDERS = [
 
 /**
  * サンプルテンプレート例:
- * 
+ *
  * 1. コードレビュー用テンプレート
  * ```
  * Please review the following code:
- * 
+ *
  * {clipboard}
- * 
+ *
  * Focus on:
  * - Code quality
  * - Performance
  * - Security
- * 
+ *
  * {cursor}
  * ```
- * 
+ *
  * 2. メール下書き用テンプレート
  * ```
  * Hi there,
- * 
+ *
  * I wanted to share this with you:
- * 
+ *
  * {clipboard}
- * 
+ *
  * Let me know what you think!
- * 
+ *
  * {cursor}
- * 
+ *
  * Best regards
  * ```
- * 
+ *
  * 3. 翻訳依頼用テンプレート
  * ```
  * Please translate the following text to Japanese:
- * 
+ *
  * ---
  * {clipboard}
  * ---
- * 
+ *
  * Translation:
  * {cursor}
  * ```
- * 
+ *
  * 使い方:
  * 1. 対象のテキストをコピー
  * 2. プロンプトを選択して "Paste Filled Prompt" を実行
  * 3. 全文がペーストされ、{cursor} の位置にカーソルが自動的に移動する（1操作で完結）
  * 4. そのまま入力を開始
  */
-

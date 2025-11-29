@@ -7,7 +7,9 @@ const execAsync = promisify(exec);
 /**
  * カーソル移動の結果
  */
-export type CursorMoveResult = { success: true } | { success: false; error: Error };
+export type CursorMoveResult =
+  | { success: true }
+  | { success: false; error: Error };
 
 /**
  * AppleScript を使ってカーソルを左に移動
@@ -26,7 +28,7 @@ export async function moveCursorLeft(count: number): Promise<CursorMoveResult> {
       success: false,
       error: new PromptManagerError(
         "Cursor movement is only supported on macOS",
-        ErrorCode.CURSOR_MOVE_FAILED
+        ErrorCode.CURSOR_MOVE_FAILED,
       ),
     };
   }
@@ -59,4 +61,3 @@ export async function moveCursorLeft(count: number): Promise<CursorMoveResult> {
 export function isCursorControlAvailable(): boolean {
   return process.platform === "darwin";
 }
-

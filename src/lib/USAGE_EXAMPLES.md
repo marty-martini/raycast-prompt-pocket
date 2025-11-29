@@ -23,7 +23,7 @@ import { getPrompt } from "./lib/promptStorage";
 
 async function loadPrompt(id: string) {
   const prompt = await getPrompt(id);
-  
+
   if (prompt) {
     console.log("Found:", prompt.title);
   } else {
@@ -44,7 +44,7 @@ async function addNewPrompt() {
       body: "This is the prompt content",
       tags: ["work", "coding"],
     });
-    
+
     console.log("Created prompt:", newPrompt.id);
   } catch (error) {
     console.error("Failed to create:", error);
@@ -64,7 +64,7 @@ async function editPrompt(id: string) {
       title: "Updated Title",
       // body や tags は指定しなければ既存の値を保持
     });
-    
+
     console.log("Updated:", updated.title);
   } catch (error) {
     console.error("Failed to update:", error);
@@ -149,7 +149,7 @@ export function PromptForm({ prompt, onSuccess }: FormProps) {
 
   async function handleSubmit(values: { title: string; body: string; tags: string }) {
     setIsLoading(true);
-    
+
     try {
       const tags = values.tags
         .split(",")
@@ -197,9 +197,9 @@ export function PromptForm({ prompt, onSuccess }: FormProps) {
       isLoading={isLoading}
       actions={
         <ActionPanel>
-          <Action.SubmitForm 
-            title={prompt ? "Update" : "Create"} 
-            onSubmit={handleSubmit} 
+          <Action.SubmitForm
+            title={prompt ? "Update" : "Create"}
+            onSubmit={handleSubmit}
           />
         </ActionPanel>
       }
@@ -277,7 +277,7 @@ import { showToast, Toast } from "@raycast/api";
 async function safeCreate() {
   try {
     await createPrompt({
-      title: "",  // エラー: title が空
+      title: "", // エラー: title が空
       body: "Test",
     });
   } catch (error) {
@@ -311,4 +311,3 @@ const patch: UpdatePromptInput = {
   // body や tags は省略可能
 };
 ```
-

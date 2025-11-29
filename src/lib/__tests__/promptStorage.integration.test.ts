@@ -23,13 +23,15 @@ describe("promptStorage integration tests", () => {
 
     // LocalStorage モックの動作を設定
     vi.mocked(LocalStorage.getItem).mockImplementation((key: string) =>
-      Promise.resolve(mockStorage.get(key))
+      Promise.resolve(mockStorage.get(key)),
     );
 
-    vi.mocked(LocalStorage.setItem).mockImplementation((key: string, value: string) => {
-      mockStorage.set(key, value);
-      return Promise.resolve();
-    });
+    vi.mocked(LocalStorage.setItem).mockImplementation(
+      (key: string, value: string) => {
+        mockStorage.set(key, value);
+        return Promise.resolve();
+      },
+    );
 
     vi.mocked(LocalStorage.removeItem).mockImplementation((key: string) => {
       mockStorage.delete(key);
@@ -112,11 +114,11 @@ describe("promptStorage integration tests", () => {
     it("should return prompts sorted by updatedAt descending", async () => {
       // Create three prompts with different timestamps
       const prompt1 = await createPrompt({ title: "First", body: "1" });
-      
+
       // Wait a bit to ensure different timestamps
       await new Promise((resolve) => setTimeout(resolve, 10));
       const prompt2 = await createPrompt({ title: "Second", body: "2" });
-      
+
       await new Promise((resolve) => setTimeout(resolve, 10));
       const prompt3 = await createPrompt({ title: "Third", body: "3" });
 
@@ -170,7 +172,11 @@ describe("promptStorage integration tests", () => {
     });
 
     it("should update tags", async () => {
-      const created = await createPrompt({ title: "Title", body: "Body", tags: ["old"] });
+      const created = await createPrompt({
+        title: "Title",
+        body: "Body",
+        tags: ["old"],
+      });
 
       const updated = await updatePrompt(created.id, { tags: ["new", "tags"] });
 
@@ -178,7 +184,11 @@ describe("promptStorage integration tests", () => {
     });
 
     it("should remove tags when updating with empty array", async () => {
-      const created = await createPrompt({ title: "Title", body: "Body", tags: ["tag"] });
+      const created = await createPrompt({
+        title: "Title",
+        body: "Body",
+        tags: ["tag"],
+      });
 
       const updated = await updatePrompt(created.id, { tags: [] });
 
@@ -186,20 +196,28 @@ describe("promptStorage integration tests", () => {
     });
 
     it("should throw error for non-existent prompt", async () => {
-      await expect(updatePrompt("non-existent", { title: "New" })).rejects.toThrow(PromptManagerError);
-      await expect(updatePrompt("non-existent", { title: "New" })).rejects.toThrow("not found");
+      await expect(
+        updatePrompt("non-existent", { title: "New" }),
+      ).rejects.toThrow(PromptManagerError);
+      await expect(
+        updatePrompt("non-existent", { title: "New" }),
+      ).rejects.toThrow("not found");
     });
 
     it("should throw error for empty title", async () => {
       const created = await createPrompt({ title: "Title", body: "Body" });
 
-      await expect(updatePrompt(created.id, { title: "   " })).rejects.toThrow("cannot be empty");
+      await expect(updatePrompt(created.id, { title: "   " })).rejects.toThrow(
+        "cannot be empty",
+      );
     });
 
     it("should throw error for empty body", async () => {
       const created = await createPrompt({ title: "Title", body: "Body" });
 
-      await expect(updatePrompt(created.id, { body: "   " })).rejects.toThrow("cannot be empty");
+      await expect(updatePrompt(created.id, { body: "   " })).rejects.toThrow(
+        "cannot be empty",
+      );
     });
 
     it("should trim updated values", async () => {
@@ -229,7 +247,9 @@ describe("promptStorage integration tests", () => {
     });
 
     it("should throw error for non-existent prompt", async () => {
-      await expect(deletePrompt("non-existent")).rejects.toThrow(PromptManagerError);
+      await expect(deletePrompt("non-existent")).rejects.toThrow(
+        PromptManagerError,
+      );
       await expect(deletePrompt("non-existent")).rejects.toThrow("not found");
     });
 
@@ -263,9 +283,21 @@ describe("promptStorage integration tests", () => {
 
   describe("findPromptsByTag", () => {
     beforeEach(async () => {
-      await createPrompt({ title: "Work Prompt", body: "1", tags: ["work", "important"] });
-      await createPrompt({ title: "Personal Prompt", body: "2", tags: ["personal"] });
-      await createPrompt({ title: "Mixed Prompt", body: "3", tags: ["work", "personal"] });
+      await createPrompt({
+        title: "Work Prompt",
+        body: "1",
+        tags: ["work", "important"],
+      });
+      await createPrompt({
+        title: "Personal Prompt",
+        body: "2",
+        tags: ["personal"],
+      });
+      await createPrompt({
+        title: "Mixed Prompt",
+        body: "3",
+        tags: ["work", "personal"],
+      });
       await createPrompt({ title: "No Tags", body: "4" });
     });
 
@@ -292,9 +324,21 @@ describe("promptStorage integration tests", () => {
 
   describe("searchPrompts", () => {
     beforeEach(async () => {
-      await createPrompt({ title: "Hello World", body: "Test content", tags: ["greeting"] });
-      await createPrompt({ title: "Goodbye", body: "Farewell message", tags: ["farewell"] });
-      await createPrompt({ title: "Test", body: "Hello from test", tags: ["test"] });
+      await createPrompt({
+        title: "Hello World",
+        body: "Test content",
+        tags: ["greeting"],
+      });
+      await createPrompt({
+        title: "Goodbye",
+        body: "Farewell message",
+        tags: ["farewell"],
+      });
+      await createPrompt({
+        title: "Test",
+        body: "Hello from test",
+        tags: ["test"],
+      });
     });
 
     it("should search in title", async () => {
@@ -363,7 +407,7 @@ describe("promptStorage integration tests", () => {
 
     it("should skip invalid prompts when loading", async () => {
       const validPrompt = await createPrompt({ title: "Valid", body: "Body" });
-      
+
       // Manually corrupt the storage by adding invalid prompt
       const prompts = JSON.parse(mockStorage.get("prompts") || "[]");
       prompts.push({ invalid: "prompt", missing: "required fields" });
@@ -377,4 +421,3 @@ describe("promptStorage integration tests", () => {
     });
   });
 });
-

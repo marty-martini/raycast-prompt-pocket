@@ -61,7 +61,9 @@ export function isValidPrompt(data: unknown): data is Prompt {
     typeof obj.body === "string" &&
     typeof obj.createdAt === "string" &&
     typeof obj.updatedAt === "string" &&
-    (obj.tags === undefined || (Array.isArray(obj.tags) && obj.tags.every((t) => typeof t === "string"))) &&
+    (obj.tags === undefined ||
+      (Array.isArray(obj.tags) &&
+        obj.tags.every((t) => typeof t === "string"))) &&
     (obj.lastUsedAt === undefined || typeof obj.lastUsedAt === "string")
   );
 }
@@ -100,7 +102,8 @@ export function sanitizePrompt(data: unknown): Prompt | null {
   }
 
   // lastUsedAt の処理
-  const lastUsedAt = typeof obj.lastUsedAt === "string" ? obj.lastUsedAt : undefined;
+  const lastUsedAt =
+    typeof obj.lastUsedAt === "string" ? obj.lastUsedAt : undefined;
 
   return {
     id: obj.id,
@@ -112,4 +115,3 @@ export function sanitizePrompt(data: unknown): Prompt | null {
     lastUsedAt,
   };
 }
-

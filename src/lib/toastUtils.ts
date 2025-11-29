@@ -4,7 +4,10 @@ import { getErrorMessage } from "../types/errors";
 /**
  * 成功メッセージを表示
  */
-export async function showSuccessToast(title: string, message?: string): Promise<void> {
+export async function showSuccessToast(
+  title: string,
+  message?: string,
+): Promise<void> {
   await showToast({
     style: Toast.Style.Success,
     title,
@@ -15,7 +18,10 @@ export async function showSuccessToast(title: string, message?: string): Promise
 /**
  * エラーメッセージを表示
  */
-export async function showErrorToast(title: string, error: unknown): Promise<void> {
+export async function showErrorToast(
+  title: string,
+  error: unknown,
+): Promise<void> {
   await showToast({
     style: Toast.Style.Failure,
     title,
@@ -36,11 +42,13 @@ export async function showLoadingToast(title: string): Promise<void> {
 /**
  * 警告メッセージを表示
  */
-export async function showWarningToast(title: string, message?: string): Promise<void> {
+export async function showWarningToast(
+  title: string,
+  message?: string,
+): Promise<void> {
   await showToast({
     style: Toast.Style.Failure,
     title,
     message,
   });
 }
-
