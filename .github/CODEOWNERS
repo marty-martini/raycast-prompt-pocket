@@ -1,0 +1,33 @@
+# Code Owners for Prompt Pocket
+# 
+# These owners will be the default owners for everything in the repo.
+# They will be requested for review when someone opens a pull request.
+#
+# Learn more about code owners: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default owners for everything in the repo
+* @marty-martini
+
+# GitHub configuration files
+/.github/ @marty-martini
+
+# Package and dependency management
+/package.json @marty-martini
+/package-lock.json @marty-martini
+
+# Build and configuration files
+/tsconfig.json @marty-martini
+/vitest.config.ts @marty-martini
+/raycast-env.d.ts @marty-martini
+
+# Documentation
+/*.md @marty-martini
+/metadata/ @marty-martini
+
+# Core source code
+/src/ @marty-martini
+
+# Tests require careful review
+/src/**/__tests__/ @marty-martini
+/src/**/*.test.ts @marty-martini
+
