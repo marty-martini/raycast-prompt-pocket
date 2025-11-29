@@ -36,27 +36,27 @@ describe("prompt types", () => {
     });
 
     it("should return false for missing id", () => {
-      const { id, ...rest } = validPrompt;
+      const { id: _id, ...rest } = validPrompt;
       expect(isValidPrompt(rest)).toBe(false);
     });
 
     it("should return false for missing title", () => {
-      const { title, ...rest } = validPrompt;
+      const { title: _title, ...rest } = validPrompt;
       expect(isValidPrompt(rest)).toBe(false);
     });
 
     it("should return false for missing body", () => {
-      const { body, ...rest } = validPrompt;
+      const { body: _body, ...rest } = validPrompt;
       expect(isValidPrompt(rest)).toBe(false);
     });
 
     it("should return false for missing createdAt", () => {
-      const { createdAt, ...rest } = validPrompt;
+      const { createdAt: _createdAt, ...rest } = validPrompt;
       expect(isValidPrompt(rest)).toBe(false);
     });
 
     it("should return false for missing updatedAt", () => {
-      const { updatedAt, ...rest } = validPrompt;
+      const { updatedAt: _updatedAt, ...rest } = validPrompt;
       expect(isValidPrompt(rest)).toBe(false);
     });
 
@@ -105,18 +105,18 @@ describe("prompt types", () => {
     });
 
     it("should return null for missing required fields", () => {
-      const { id, ...rest } = validPrompt;
+      const { id: _id, ...rest } = validPrompt;
       expect(sanitizePrompt(rest)).toBe(null);
 
-      const { title, ...rest2 } = validPrompt;
+      const { title: _title, ...rest2 } = validPrompt;
       expect(sanitizePrompt(rest2)).toBe(null);
 
-      const { body, ...rest3 } = validPrompt;
+      const { body: _body, ...rest3 } = validPrompt;
       expect(sanitizePrompt(rest3)).toBe(null);
     });
 
     it("should add current timestamp for missing createdAt", () => {
-      const { createdAt, ...rest } = validPrompt;
+      const { createdAt: _createdAt, ...rest } = validPrompt;
       const result = sanitizePrompt(rest);
 
       expect(result).not.toBe(null);
@@ -127,7 +127,7 @@ describe("prompt types", () => {
     });
 
     it("should add current timestamp for missing updatedAt", () => {
-      const { updatedAt, ...rest } = validPrompt;
+      const { updatedAt: _updatedAt, ...rest } = validPrompt;
       const result = sanitizePrompt(rest);
 
       expect(result).not.toBe(null);
@@ -172,7 +172,7 @@ describe("prompt types", () => {
     });
 
     it("should handle prompt without tags", () => {
-      const { tags, ...promptWithoutTags } = validPrompt;
+      const { tags: _tags, ...promptWithoutTags } = validPrompt;
       const result = sanitizePrompt(promptWithoutTags);
 
       expect(result?.tags).toBeUndefined();
